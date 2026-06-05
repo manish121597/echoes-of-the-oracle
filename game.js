@@ -587,7 +587,6 @@
     state.started = true;
     state.gameOver = false;
     state.inputLocked = true;
-    state.tutorialShown = false;
     state.phase = "transition";
     state.floor = 1;
     state.roomIndex = 0;
@@ -679,10 +678,6 @@
     state.phase = "combat";
     state.inputLocked = false;
     setControlsEnabled(true);
-    if (!state.tutorialShown) {
-      state.tutorialShown = true;
-      showTutorial();
-    }
     addLog(`${state.currentEnemy.name} blocks the way.`);
     narrateEnemyIntro(state.currentEnemy, "enemy");
   }
@@ -1095,10 +1090,15 @@
       `${"─".repeat(28)}\n` +
       `Play: https://echoes-of-the-oracle.vercel.app`;
 
+    const oldShareBtn = document.getElementById("shareRunButton");
+    if (oldShareBtn) {
+      oldShareBtn.remove();
+    }
+
     const shareBtn = document.createElement("button");
+    shareBtn.id = "shareRunButton";
     shareBtn.textContent = "COPY RUN CARD";
-    shareBtn.className = "primary-button";
-    shareBtn.style.marginBottom = "16px";
+    shareBtn.className = "primary-button share-run-button";
     shareBtn.addEventListener("click", () => {
       navigator.clipboard.writeText(shareText).then(() => {
         shareBtn.textContent = "COPIED!";
@@ -1110,59 +1110,6 @@
 
     const chronicle = document.getElementById("runChronicle");
     chronicle.parentNode.insertBefore(shareBtn, chronicle);
-  }
-
-  function showTutorial() {
-    state.inputLocked = true;
-    setControlsEnabled(false);
-
-    const overlay = document.createElement("div");
-    overlay.id = "tutorialOverlay";
-    overlay.style.cssText = `
-    position:fixed; inset:0; z-index:99;
-    background:rgba(5,5,20,0.93);
-    display:grid; place-items:center;
-    font-family:'Press Start 2P',monospace;
-    color:#f3f0ff; text-align:center; padding:24px;
-  `;
-    overlay.innerHTML = `
-    <div style="max-width:520px; display:grid; gap:20px;">
-      <div style="color:#b765ff; font-size:1.1rem; line-height:1.6;">
-        ECHOES OF THE ORACLE
-      </div>
-      <div style="color:#ffd65c; font-size:0.62rem; line-height:2;">
-        HOW TO SURVIVE
-      </div>
-      <div style="font-size:0.55rem; line-height:2.2; color:#d8daf2;">
-        ⚔️ ATTACK — Strike the enemy<br>
-        🛡️ DEFEND — Take half damage this turn<br>
-        🧪 USE ITEM — Drink a health potion (+30 HP)<br>
-        💨 FLEE — 40% chance to escape<br><br>
-        Every 5 floors: face a BOSS that reads<br>
-        your entire run history and taunts you.<br><br>
-        Keyboard: A · D · I · F
-      </div>
-      <button id="tutorialClose" style="
-        font-family:'Press Start 2P',monospace;
-        background:#ffd65c; color:#160d20;
-        border:none; padding:14px 28px;
-        font-size:0.62rem; cursor:pointer;
-        box-shadow:0 5px 0 #85691f;
-      ">ENTER THE DUNGEON</button>
-    </div>
-  `;
-    document.body.appendChild(overlay);
-
-    const closeBtn = document.getElementById("tutorialClose");
-    closeBtn.addEventListener("click", () => {
-      overlay.remove();
-      state.inputLocked = false;
-      setControlsEnabled(true);
-    });
-    closeBtn.addEventListener("touchend", (e) => {
-      e.preventDefault();
-      closeBtn.click();
-    }, { passive: false });
   }
 
   function setControlsEnabled(enabled) {

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Echoes of the Oracle</title>
+  <meta name="description" content="A browser roguelite where the dungeon remembers your run and GPT-4o-mini speaks through enemies, rooms, and bosses.">
+  <meta property="og:title" content="Echoes of the Oracle">
+  <meta property="og:description" content="A browser roguelite where GPT-4o-mini narrates enemies, rooms, Oracle hints, and boss monologues from your run history.">
+  <meta property="og:image" content="og-image-placeholder.png">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="ai.js" defer></script>
+  <script src="game.js" defer></script>
+</head>
+<body>
+  <main class="app-shell">
+    <section id="startScreen" class="screen start-screen">
+      <h1 class="game-title">ECHOES OF THE ORACLE</h1>
+      <p class="subtitle">A roguelite where the dungeon knows your name.</p>
+      <div class="start-card">
+        <input id="apiKeyInput" class="api-key-input" type="password" autocomplete="off" spellcheck="false" placeholder="Enter your OpenAI API key">
+        <button id="beginRunButton" class="primary-button" type="button">BEGIN RUN</button>
+      </div>
+    </section>
+
+    <section id="gameScreen" class="screen game-screen" hidden>
+      <div class="run-hud" aria-live="polite">
+        <span id="hudFloor">FLOOR 1</span>
+        <span id="hudHp">HP 100/100</span>
+        <span id="hudAttack">ATK 10</span>
+        <span id="hudGold">GOLD 0</span>
+        <span id="hudPotions">POTIONS 0</span>
+      </div>
+
+      <div id="canvasFrame" class="canvas-frame theme-blue">
+        <canvas id="gameCanvas" width="600" height="400" aria-label="Echoes of the Oracle game canvas"></canvas>
+        <button id="muteToggle" class="mute-toggle" type="button" aria-label="Toggle sound">♪</button>
+        <div id="floorTransition" class="floor-transition" hidden>
+          <span id="floorTransitionText">FLOOR 1</span>
+        </div>
+      </div>
+
+      <div class="narration-panel" aria-live="polite">
+        <div id="narrationSpeaker" class="narration-speaker">THE ORACLE</div>
+        <p id="narrationText" class="narration-text">...</p>
+      </div>
+
+      <div id="combatLog" class="combat-log" aria-live="polite"></div>
+
+      <div id="choicePanel" class="choice-panel" hidden></div>
+
+      <div class="action-grid">
+        <button type="button" data-action="attack">ATTACK</button>
+        <button type="button" data-action="defend">DEFEND</button>
+        <button type="button" data-action="item">USE ITEM</button>
+        <button type="button" data-action="flee">FLEE</button>
+      </div>
+    </section>
+
+    <section id="gameOverScreen" class="screen game-over-screen" hidden>
+      <h2>RUN ENDED</h2>
+      <div id="finalStats" class="final-stats"></div>
+      <h3>CHRONICLE OF YOUR RUN</h3>
+      <ol id="runChronicle" class="run-chronicle"></ol>
+      <button id="playAgainButton" class="primary-button" type="button">PLAY AGAIN</button>
+    </section>
+  </main>
+</body>
+</html>

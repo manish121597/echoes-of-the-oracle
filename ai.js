@@ -8,7 +8,17 @@
       return `Floor ${floor} exhales cold dust as the ${roomType} chamber opens. The stones seem to remember every careless step.`;
     },
     taunt(enemyName) {
-      return `${enemyName} grins through the dark: "Your courage will look better as a warning."`;
+      const taunts = [
+        `${enemyName} steps forward: "I have ended stronger souls than yours."`,
+        `${enemyName} snarls: "Your footsteps told me everything I needed to know."`,
+        `${enemyName} whispers: "The dungeon warned me you were coming. I laughed."`,
+        `${enemyName} growls: "Drop your weapon and I will make this quick."`,
+        `${enemyName} grins: "I counted your scars before you even entered this room."`,
+        `${enemyName} hisses: "Fear is just pain that arrived early. Welcome."`,
+        `${enemyName} sneers: "You fight like someone who still expects to survive."`,
+        `${enemyName} laughs: "The last one who stood there made a fine ghost."`,
+      ];
+      return taunts[Math.floor(Math.random() * taunts.length)];
     },
     hint(gold, hp, floor) {
       const misleading = Math.random() < 0.5;

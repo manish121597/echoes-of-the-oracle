@@ -15,6 +15,10 @@
   box-sizing: border-box;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 html,
 body {
   min-height: 100%;
@@ -78,10 +82,15 @@ button:disabled {
 .game-title {
   margin: 0 0 18px;
   color: var(--purple);
-  font-size: clamp(1.5rem, 6vw, 3.15rem);
+  font-size: clamp(1.8rem, 7vw, 3.6rem);
   line-height: 1.28;
-  text-shadow: 0 0 10px rgba(183, 101, 255, 0.95), 0 0 32px rgba(183, 101, 255, 0.48);
-  animation: titleFloat 2s ease-in-out infinite;
+  background: linear-gradient(135deg, #d49fff 0%, #b765ff 40%, #7c3aed 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
+  filter: drop-shadow(0 0 18px rgba(183, 101, 255, 0.7));
+  animation: titleFloat 2.5s ease-in-out infinite;
 }
 
 .subtitle {
@@ -92,11 +101,23 @@ button:disabled {
   line-height: 2;
 }
 
+.version-tag {
+  font-size: 0.48rem;
+  color: #5a5c7a;
+  margin: -16px 0 28px;
+  letter-spacing: 0;
+}
+
 .start-card {
   display: grid;
   gap: 16px;
   width: min(100%, 560px);
   margin: 0 auto;
+  background: rgba(20, 16, 40, 0.7);
+  border: 1px solid rgba(183, 101, 255, 0.25);
+  border-radius: 2px;
+  padding: 28px 24px;
+  backdrop-filter: blur(8px);
 }
 
 .api-key-input {
@@ -156,12 +177,32 @@ button:disabled {
   place-items: center;
   padding: 6px;
   text-align: center;
+  background: rgba(10, 10, 30, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 2px solid rgba(183, 101, 255, 0.3);
+  font-size: clamp(0.44rem, 1.5vw, 0.6rem);
+  transition: border-color 0.3s ease;
 }
 
 .canvas-frame {
   position: relative;
   width: min(100%, 604px);
   margin: 0 auto;
+}
+
+.canvas-frame::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.06) 2px,
+    rgba(0, 0, 0, 0.06) 4px
+  );
+  pointer-events: none;
+  z-index: 2;
 }
 
 #gameCanvas {
@@ -231,22 +272,27 @@ button:disabled {
 
 .narration-panel {
   min-height: 92px;
-  padding: 14px;
+  border-left: 3px solid var(--purple);
+  background: linear-gradient(90deg, rgba(30, 16, 50, 0.95) 0%, rgba(16, 16, 38, 0.92) 100%);
+  padding: 16px 18px;
 }
 
 .narration-speaker {
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   color: var(--gold);
-  font-size: 0.62rem;
+  font-size: 0.58rem;
+  letter-spacing: 0;
+  text-shadow: 0 0 10px rgba(255, 214, 92, 0.4);
 }
 
 .narration-text {
   min-height: 42px;
   margin: 0;
-  color: #dedff4;
+  color: #e8e9ff;
   font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
-  font-size: 0.95rem;
-  line-height: 1.45;
+  font-size: 0.88rem;
+  line-height: 1.7;
+  font-style: italic;
 }
 
 .typing::after {
@@ -256,10 +302,11 @@ button:disabled {
 
 .combat-log {
   min-height: 96px;
-  padding: 12px;
+  padding: 10px 14px;
   display: grid;
   align-content: start;
-  gap: 8px;
+  gap: 6px;
+  border-left: 3px solid rgba(87, 199, 255, 0.3);
   font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
   font-size: 0.92rem;
   line-height: 1.3;
@@ -267,13 +314,19 @@ button:disabled {
 
 .log-line {
   color: #8f91aa;
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  font-size: 0.82rem;
 }
 
 .log-line:last-child {
   color: #ffffff;
+  border-bottom: none;
 }
 
 .choice-panel {
+  border-left: 3px solid var(--gold);
+  background: linear-gradient(90deg, rgba(30, 20, 5, 0.9), rgba(16, 16, 38, 0.92));
   padding: 14px;
 }
 
@@ -302,6 +355,14 @@ button:disabled {
   min-height: 42px;
   padding: 0 12px;
   font-size: 0.62rem;
+  border-bottom: 2px solid rgba(255, 214, 92, 0.4);
+  background: rgba(255, 214, 92, 0.08);
+  transition: all 150ms ease;
+}
+
+.choice-buttons button:hover {
+  background: rgba(255, 214, 92, 0.18);
+  border-bottom-color: var(--gold);
 }
 
 .action-grid {
@@ -315,6 +376,31 @@ button:disabled {
   padding: 0 8px;
   color: #f6f1ff;
   font-size: clamp(0.52rem, 2vw, 0.66rem);
+}
+
+.action-grid button[data-action="attack"] {
+  border-bottom: 3px solid #ff5b5b;
+  background: rgba(255, 91, 91, 0.12);
+}
+
+.action-grid button[data-action="defend"] {
+  border-bottom: 3px solid #57c7ff;
+  background: rgba(87, 199, 255, 0.1);
+}
+
+.action-grid button[data-action="item"] {
+  border-bottom: 3px solid #47e38a;
+  background: rgba(71, 227, 138, 0.1);
+}
+
+.action-grid button[data-action="flee"] {
+  border-bottom: 3px solid #ffd65c;
+  background: rgba(255, 214, 92, 0.08);
+}
+
+.action-grid button:hover:not(:disabled) {
+  filter: brightness(1.3);
+  transform: translateY(2px);
 }
 
 .key-hint {
@@ -352,6 +438,14 @@ button:disabled {
   font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
   font-size: 0.92rem;
   line-height: 1.45;
+  border-left: 3px solid var(--gold);
+  background: linear-gradient(90deg, rgba(30, 20, 5, 0.9), rgba(16, 16, 38, 0.9));
+}
+
+.run-chronicle li {
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255, 214, 92, 0.08);
+  line-height: 1.7;
 }
 
 .share-run-button {

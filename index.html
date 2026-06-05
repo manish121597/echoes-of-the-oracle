@@ -17,58 +17,62 @@
   <script src="game.js" defer></script>
 </head>
 <body>
-  <main class="app-shell">
-    <section id="startScreen" class="screen start-screen">
-      <h1 class="game-title">ECHOES OF THE ORACLE</h1>
-      <p class="subtitle">A roguelite where the dungeon knows your name.</p>
-      <div class="start-card">
-        <input id="apiKeyInput" class="api-key-input" type="password" autocomplete="off" spellcheck="false" placeholder="Enter your OpenAI API key">
-        <button id="beginRunButton" class="primary-button" type="button">BEGIN RUN</button>
-      </div>
-    </section>
-
-    <section id="gameScreen" class="screen game-screen" hidden>
-      <div class="run-hud" aria-live="polite">
-        <span id="hudFloor">FLOOR 1</span>
-        <span id="hudHp">HP 100/100</span>
-        <span id="hudAttack">ATK 10</span>
-        <span id="hudGold">GOLD 0</span>
-        <span id="hudPotions">POTIONS 0</span>
-      </div>
-
-      <div id="canvasFrame" class="canvas-frame theme-blue">
-        <canvas id="gameCanvas" width="600" height="400" aria-label="Echoes of the Oracle game canvas"></canvas>
-        <button id="muteToggle" class="mute-toggle" type="button" aria-label="Toggle sound">♪</button>
-        <div id="floorTransition" class="floor-transition" hidden>
-          <span id="floorTransitionText">FLOOR 1</span>
+  <canvas id="bgCanvas" style="position:fixed;inset:0;z-index:0;pointer-events:none;"></canvas>
+  <div style="position:relative;z-index:1;">
+    <main class="app-shell">
+      <section id="startScreen" class="screen start-screen">
+        <h1 class="game-title">ECHOES OF THE ORACLE</h1>
+        <p class="subtitle">A roguelite where the dungeon knows your name.</p>
+        <p class="version-tag">v1.0 · Built with Codex + GPT-4o-mini</p>
+        <div class="start-card">
+          <input id="apiKeyInput" class="api-key-input" type="password" autocomplete="off" spellcheck="false" placeholder="Enter your OpenAI API key">
+          <button id="beginRunButton" class="primary-button" type="button">BEGIN RUN</button>
         </div>
-      </div>
+      </section>
 
-      <div class="narration-panel" aria-live="polite">
-        <div id="narrationSpeaker" class="narration-speaker">THE ORACLE</div>
-        <p id="narrationText" class="narration-text">...</p>
-      </div>
+      <section id="gameScreen" class="screen game-screen" hidden>
+        <div class="run-hud" aria-live="polite">
+          <span id="hudFloor">FLOOR 1</span>
+          <span id="hudHp">HP 100/100</span>
+          <span id="hudAttack">ATK 10</span>
+          <span id="hudGold">GOLD 0</span>
+          <span id="hudPotions">POTIONS 0</span>
+        </div>
 
-      <div id="combatLog" class="combat-log" aria-live="polite"></div>
+        <div id="canvasFrame" class="canvas-frame theme-blue">
+          <canvas id="gameCanvas" width="600" height="400" aria-label="Echoes of the Oracle game canvas"></canvas>
+          <button id="muteToggle" class="mute-toggle" type="button" aria-label="Toggle sound">♪</button>
+          <div id="floorTransition" class="floor-transition" hidden>
+            <span id="floorTransitionText">FLOOR 1</span>
+          </div>
+        </div>
 
-      <div id="choicePanel" class="choice-panel" hidden></div>
+        <div class="narration-panel" aria-live="polite">
+          <div id="narrationSpeaker" class="narration-speaker">THE ORACLE</div>
+          <p id="narrationText" class="narration-text">...</p>
+        </div>
 
-      <div class="action-grid">
-        <button type="button" data-action="attack">ATTACK</button>
-        <button type="button" data-action="defend">DEFEND</button>
-        <button type="button" data-action="item">USE ITEM</button>
-        <button type="button" data-action="flee">FLEE</button>
-      </div>
-      <p class="key-hint">A · D · I · F</p>
-    </section>
+        <div id="combatLog" class="combat-log" aria-live="polite"></div>
 
-    <section id="gameOverScreen" class="screen game-over-screen" hidden>
-      <h2>RUN ENDED</h2>
-      <div id="finalStats" class="final-stats"></div>
-      <h3>CHRONICLE OF YOUR RUN</h3>
-      <ol id="runChronicle" class="run-chronicle"></ol>
-      <button id="playAgainButton" class="primary-button" type="button">PLAY AGAIN</button>
-    </section>
-  </main>
+        <div id="choicePanel" class="choice-panel" hidden></div>
+
+        <div class="action-grid">
+          <button type="button" data-action="attack">ATTACK</button>
+          <button type="button" data-action="defend">DEFEND</button>
+          <button type="button" data-action="item">USE ITEM</button>
+          <button type="button" data-action="flee">FLEE</button>
+        </div>
+        <p class="key-hint">A · D · I · F</p>
+      </section>
+
+      <section id="gameOverScreen" class="screen game-over-screen" hidden>
+        <h2>RUN ENDED</h2>
+        <div id="finalStats" class="final-stats"></div>
+        <h3>CHRONICLE OF YOUR RUN</h3>
+        <ol id="runChronicle" class="run-chronicle"></ol>
+        <button id="playAgainButton" class="primary-button" type="button">PLAY AGAIN</button>
+      </section>
+    </main>
+  </div>
 </body>
 </html>

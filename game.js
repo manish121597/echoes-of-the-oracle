@@ -555,6 +555,7 @@
     setControlsEnabled(false);
     updateHud();
     requestAnimationFrame(gameLoop);
+    initBgStars();
   }
 
   function wireButton(button, handler) {
@@ -1064,6 +1065,9 @@
   }
 
   function renderGameOver() {
+    const existingShareBtn = document.getElementById("shareRunBtn");
+    if (existingShareBtn) existingShareBtn.remove();
+
     dom.finalStats.innerHTML = `
       <div>Floors reached: ${state.floor}</div>
       <div>Enemies killed: ${state.enemiesKilled}</div>
@@ -1090,13 +1094,8 @@
       `${"─".repeat(28)}\n` +
       `Play: https://echoes-of-the-oracle.vercel.app`;
 
-    const oldShareBtn = document.getElementById("shareRunButton");
-    if (oldShareBtn) {
-      oldShareBtn.remove();
-    }
-
     const shareBtn = document.createElement("button");
-    shareBtn.id = "shareRunButton";
+    shareBtn.id = "shareRunBtn";
     shareBtn.textContent = "COPY RUN CARD";
     shareBtn.className = "primary-button share-run-button";
     shareBtn.addEventListener("click", () => {
@@ -1110,6 +1109,40 @@
 
     const chronicle = document.getElementById("runChronicle");
     chronicle.parentNode.insertBefore(shareBtn, chronicle);
+  }
+
+  function initBgStars() {
+    const bg = document.getElementById("bgCanvas");
+    if (!bg) return;
+    bg.width = window.innerWidth;
+    bg.height = window.innerHeight;
+    const bx = bg.getContext("2d");
+    const stars = Array.from({ length: 120 }, () => ({
+      x: Math.random() * bg.width,
+      y: Math.random() * bg.height,
+      r: Math.random() * 1.4 + 0.3,
+      alpha: Math.random() * 0.6 + 0.1,
+      speed: Math.random() * 0.015 + 0.005
+    }));
+    function drawBgStars() {
+      bx.clearRect(0, 0, bg.width, bg.height);
+      for (const s of stars) {
+        s.alpha += Math.sin(Date.now() * s.speed) * 0.004;
+        bx.save();
+        bx.globalAlpha = Math.max(0.05, Math.min(0.85, s.alpha));
+        bx.fillStyle = "#c8aaff";
+        bx.beginPath();
+        bx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        bx.fill();
+        bx.restore();
+      }
+      requestAnimationFrame(drawBgStars);
+    }
+    drawBgStars();
+    window.addEventListener("resize", () => {
+      bg.width = window.innerWidth;
+      bg.height = window.innerHeight;
+    });
   }
 
   function setControlsEnabled(enabled) {

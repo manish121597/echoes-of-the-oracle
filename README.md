@@ -1,58 +1,68 @@
 # Echoes of the Oracle
+> *A browser roguelite where the dungeon remembers everything you do.*
 
-Echoes of the Oracle is a browser-based roguelite dungeon game where the dungeon does more than spawn enemies: it remembers. Each run moves through hostile rooms, strange bargains, and boss floors while GPT-4o-mini generates room descriptions, enemy taunts, Oracle hints, and boss monologues based on the choices you made during that run.
+## Play Now
+- Live: https://echoes-of-the-oracle.vercel.app
+- GitHub: https://github.com/manish121597/echoes-of-the-oracle
 
-## Built with Codex
+## What I Built
+A fully browser-based roguelite dungeon game where GPT-4o-mini
+is not just a backend — it is a character. Every enemy taunts you
+personally. The Oracle gives cryptic hints (sometimes lies).
+The final boss reads your entire run history before the fight
+and monologues about YOUR specific choices.
 
-Codex generated the complete static game from the master build brief:
+No npm. No frameworks. Open index.html and play.
 
-- Vanilla HTML, CSS, and JavaScript structure with no npm, bundler, or framework.
-- HTML5 Canvas renderer for dungeon rooms, enemies, player state, HP bars, animated backgrounds, floating combat text, and particles.
-- Turn-based combat engine with attacking, defending, potions, fleeing, enemy scaling, rewards, stat upgrades, choice rooms, and boss floors.
-- OpenAI integration layer in `ai.js` using `gpt-4o-mini` for room narration, enemy taunts, Oracle hints, and run-history boss dialogue.
-- Web Audio sound synthesis in `game.js`, including attack sounds, gold pickups, boss rumble, Oracle shimmer, flee blips, death tones, and level-up chimes.
-- Final polish including screen shake, canvas border glow, floor transitions, critical hits, animated HP tweening, and mobile-friendly tap controls.
+## How Codex Helped
+Codex generated the entire project from a structured build brief:
+- HTML5 Canvas renderer (dungeon rooms, HP bars, emoji characters)
+- Turn-based combat engine (attack, defend, potion, flee with crit system)
+- Web Audio API sound synthesis (8 programmatic sounds, zero audio files)
+- Particle system (enemy death bursts, heal sparkles, boss explosion)
+- BackgroundRenderer class (animated fog/embers/stars per floor theme)
+- FloatingTextSystem (damage numbers, crits, healing floaters)
+- OpenAI integration layer in ai.js (4 AI functions with fallbacks)
+- Screen shake, HP tweening, floor transitions, scanline overlay
+- Procedural ambient music engine (drone oscillators + LFO modulation)
 
 ## How to Play
+1. Open the link above in any browser
+2. Paste your OpenAI API key for live AI narration (optional)
+3. Click BEGIN RUN
 
-1. Open `index.html` in a browser.
-2. Enter an OpenAI API key if you want live AI narration.
-3. Press `BEGIN RUN`.
-4. Use the click or tap buttons:
-   - `ATTACK` damages the current enemy.
-   - `DEFEND` halves the next incoming hit.
-   - `USE ITEM` drinks a health potion if you have one.
-   - `FLEE` has a 40% chance to skip the fight.
-5. Survive as many floors as possible. Every fifth floor has a boss that reads your run history before the fight.
+Controls:
+- ATTACK (A) — Strike the enemy
+- DEFEND (D) — Take half damage this turn
+- USE ITEM (I) — Drink a health potion (+30 HP)
+- FLEE (F) — 40% chance to escape
 
-The game remains playable without an API key. AI narration falls back to built-in dialogue if the key is missing, the network is unavailable, or the API call fails.
+Every 5 floors: face a BOSS that reads your run history and taunts you personally.
 
-## Run Locally
+## Tech Stack
+- Vanilla JavaScript (zero dependencies)
+- HTML5 Canvas API
+- Web Audio API (procedural sound + music)
+- OpenAI API — gpt-4o-mini
+- Deployed on Vercel
 
-No install is required.
-
-```text
-Open index.html in any modern browser.
-```
-
-The folder is ready for GitHub Pages, Vercel drag-and-drop deploys, or any static host.
-
-## Screenshot
-
-![Built with Codex](https://img.shields.io/badge/Built%20with-Codex-412991?style=flat-square)
+## What Makes It Different
+Most game jam entries are Pong or Snake clones. This game has AI as a
+CHARACTER — the dungeon narrates, the Oracle hints, the boss remembers.
+Every run feels different because the AI responds to YOUR stats and choices.
 
 ## File Structure
+index.html — game shell + OG tags
+style.css  — pixel aesthetic, floor themes, animations
+game.js    — engine, combat, audio, particles, canvas renderer
+ai.js      — OpenAI integration with fallback dialogue
 
-```text
-/index.html
-/style.css
-/game.js
-/ai.js
-/README.md
-```
+## Built with Codex
+![Built with Codex](https://img.shields.io/badge/Built%20with-Codex-412991?style=flat-square)
+![OpenAI API](https://img.shields.io/badge/OpenAI-GPT--4o--mini-00A67E?style=flat-square)
+![Vanilla JS](https://img.shields.io/badge/Vanilla-JavaScript-F7DF1E?style=flat-square)
+![Deployed on Vercel](https://img.shields.io/badge/Deployed-Vercel-000000?style=flat-square)
 
-## Known Limitations and Future Ideas
-
-- Browser-side API calls require the player to paste their own OpenAI API key; the key is kept in memory only and is never stored.
-- If a browser blocks Web Audio until interaction, sounds begin after the first player action.
-- Future versions could add persistent unlocks, more enemy families, relics, keyboard controls, seeded daily runs, and a generated share card for completed runs.
+## Known Limitations & Future Ideas
+- API key entered client-side (kept in memory only, never stored)
+- Future: seeded daily runs, persistent leaderboard, share image card

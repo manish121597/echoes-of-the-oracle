@@ -15,6 +15,7 @@
   const dom = {};
   let ctx;
   let sound;
+  let music;
   let particles;
   let floaters;
   let background;
@@ -46,6 +47,96 @@
     log: [],
     narrationToken: 0
   };
+
+  class MusicEngine {
+    constructor() {
+      this.context = null;
+      this.nodes = [];
+      this.playing = false;
+      this.muted = false;
+    }
+
+    getContext() {
+      try {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        if (!this.context) this.context = new AC();
+        if (this.context.state === "suspended") this.context.resume().catch(() => {});
+        return this.context;
+      } catch(e) { return null; }
+    }
+
+    start(theme) {
+      this.stop();
+      const audio = this.getContext();
+      if (!audio || this.muted) return;
+      this.playing = true;
+
+      const master = audio.createGain();
+      master.gain.setValueAtTime(0.04, audio.currentTime);
+      master.connect(audio.destination);
+      this.nodes.push(master);
+
+      const themes = {
+        blue:   [110, 146.8, 164.8, 220],
+        red:    [98,  130.8, 146.8, 196],
+        purple: [82.4, 110,  123.5, 164.8]
+      };
+
+      const notes = themes[theme] || themes.blue;
+
+      notes.forEach((freq, i) => {
+        const osc = audio.createOscillator();
+        const gain = audio.createGain();
+        osc.type = i % 2 === 0 ? "sine" : "triangle";
+        osc.frequency.setValueAtTime(freq, audio.currentTime);
+
+        const lfo = audio.createOscillator();
+        const lfoGain = audio.createGain();
+        lfo.frequency.setValueAtTime(0.08 + i * 0.03, audio.currentTime);
+        lfoGain.gain.setValueAtTime(freq * 0.004, audio.currentTime);
+        lfo.connect(lfoGain);
+        lfoGain.connect(osc.frequency);
+        lfo.start();
+
+        gain.gain.setValueAtTime(0.18 + (i * 0.06), audio.currentTime);
+        osc.connect(gain);
+        gain.connect(master);
+        osc.start();
+
+        this.nodes.push(osc, gain, lfo, lfoGain);
+      });
+
+      const noise = audio.createOscillator();
+      const noiseGain = audio.createGain();
+      noise.type = "sawtooth";
+      noise.frequency.setValueAtTime(30, audio.currentTime);
+      noiseGain.gain.setValueAtTime(0.015, audio.currentTime);
+      noise.connect(noiseGain);
+      noiseGain.connect(master);
+      noise.start();
+      this.nodes.push(noise, noiseGain);
+    }
+
+    stop() {
+      for (const node of this.nodes) {
+        try { node.stop && node.stop(); } catch(e) {}
+        try { node.disconnect && node.disconnect(); } catch(e) {}
+      }
+      this.nodes = [];
+      this.playing = false;
+    }
+
+    setTheme(theme) {
+      if (this.playing) this.start(theme);
+    }
+
+    setMuted(muted) {
+      this.muted = muted;
+      if (muted) this.stop();
+      else if (state.started) this.start(currentTheme());
+    }
+  }
 
   class SoundEngine {
     constructor() {
@@ -441,6 +532,7 @@
 
     ctx = dom.canvas.getContext("2d");
     sound = new SoundEngine();
+    music = new MusicEngine();
     particles = new ParticleSystem();
     floaters = new FloatingTextSystem();
     background = new BackgroundRenderer();
@@ -452,6 +544,11 @@
     for (const button of dom.actionButtons) {
       wireButton(button, () => handleAction(button.dataset.action));
     }
+    document.addEventListener("keydown", (e) => {
+      const map = { a: "attack", d: "defend", i: "item", f: "flee" };
+      const action = map[e.key.toLowerCase()];
+      if (action) handleAction(action);
+    });
 
     setNarration("THE ORACLE", "The key opens the gate. The courage opens the wound.");
     addLog("Enter the dungeon when ready.");
@@ -470,6 +567,7 @@
 
   function beginRun() {
     sound.unlock();
+    music.start("blue");
     window.OracleAI.setApiKey(dom.apiKeyInput.value);
     dom.apiKeyInput.value = "";
     showOnly(dom.gameScreen);
@@ -479,6 +577,7 @@
 
   function restartRun() {
     sound.unlock();
+    music.start("blue");
     showOnly(dom.gameScreen);
     resetRun();
     startFloor(1);
@@ -488,6 +587,7 @@
     state.started = true;
     state.gameOver = false;
     state.inputLocked = true;
+    state.tutorialShown = false;
     state.phase = "transition";
     state.floor = 1;
     state.roomIndex = 0;
@@ -579,6 +679,10 @@
     state.phase = "combat";
     state.inputLocked = false;
     setControlsEnabled(true);
+    if (!state.tutorialShown) {
+      state.tutorialShown = true;
+      showTutorial();
+    }
     addLog(`${state.currentEnemy.name} blocks the way.`);
     narrateEnemyIntro(state.currentEnemy, "enemy");
   }
@@ -977,6 +1081,88 @@
       li.textContent = entry;
       dom.runChronicle.appendChild(li);
     }
+
+    const best = state.runHistory.length
+      ? state.runHistory[Math.floor(state.runHistory.length / 2)]
+      : "Entered the dungeon and met the dark.";
+
+    const shareText =
+      `ECHOES OF THE ORACLE\n` +
+      `${"─".repeat(28)}\n` +
+      `Floors: ${state.floor}  |  Kills: ${state.enemiesKilled}  |  Gold: ${state.totalGoldCollected}\n` +
+      `${"─".repeat(28)}\n` +
+      `"${best}"\n` +
+      `${"─".repeat(28)}\n` +
+      `Play: https://echoes-of-the-oracle.vercel.app`;
+
+    const shareBtn = document.createElement("button");
+    shareBtn.textContent = "COPY RUN CARD";
+    shareBtn.className = "primary-button";
+    shareBtn.style.marginBottom = "16px";
+    shareBtn.addEventListener("click", () => {
+      navigator.clipboard.writeText(shareText).then(() => {
+        shareBtn.textContent = "COPIED!";
+        setTimeout(() => { shareBtn.textContent = "COPY RUN CARD"; }, 1800);
+      }).catch(() => {
+        shareBtn.textContent = "COPY FAILED";
+      });
+    });
+
+    const chronicle = document.getElementById("runChronicle");
+    chronicle.parentNode.insertBefore(shareBtn, chronicle);
+  }
+
+  function showTutorial() {
+    state.inputLocked = true;
+    setControlsEnabled(false);
+
+    const overlay = document.createElement("div");
+    overlay.id = "tutorialOverlay";
+    overlay.style.cssText = `
+    position:fixed; inset:0; z-index:99;
+    background:rgba(5,5,20,0.93);
+    display:grid; place-items:center;
+    font-family:'Press Start 2P',monospace;
+    color:#f3f0ff; text-align:center; padding:24px;
+  `;
+    overlay.innerHTML = `
+    <div style="max-width:520px; display:grid; gap:20px;">
+      <div style="color:#b765ff; font-size:1.1rem; line-height:1.6;">
+        ECHOES OF THE ORACLE
+      </div>
+      <div style="color:#ffd65c; font-size:0.62rem; line-height:2;">
+        HOW TO SURVIVE
+      </div>
+      <div style="font-size:0.55rem; line-height:2.2; color:#d8daf2;">
+        ⚔️ ATTACK — Strike the enemy<br>
+        🛡️ DEFEND — Take half damage this turn<br>
+        🧪 USE ITEM — Drink a health potion (+30 HP)<br>
+        💨 FLEE — 40% chance to escape<br><br>
+        Every 5 floors: face a BOSS that reads<br>
+        your entire run history and taunts you.<br><br>
+        Keyboard: A · D · I · F
+      </div>
+      <button id="tutorialClose" style="
+        font-family:'Press Start 2P',monospace;
+        background:#ffd65c; color:#160d20;
+        border:none; padding:14px 28px;
+        font-size:0.62rem; cursor:pointer;
+        box-shadow:0 5px 0 #85691f;
+      ">ENTER THE DUNGEON</button>
+    </div>
+  `;
+    document.body.appendChild(overlay);
+
+    const closeBtn = document.getElementById("tutorialClose");
+    closeBtn.addEventListener("click", () => {
+      overlay.remove();
+      state.inputLocked = false;
+      setControlsEnabled(true);
+    });
+    closeBtn.addEventListener("touchend", (e) => {
+      e.preventDefault();
+      closeBtn.click();
+    }, { passive: false });
   }
 
   function setControlsEnabled(enabled) {
@@ -1018,6 +1204,7 @@
     dom.canvasFrame.classList.remove("theme-blue", "theme-red", "theme-purple");
     dom.canvasFrame.classList.add(`theme-${theme}`);
     background.setTheme(theme);
+    music.setTheme(theme);
   }
 
   function currentTheme() {
@@ -1032,6 +1219,7 @@
 
   function toggleMute() {
     sound.muted = !sound.muted;
+    music.setMuted(sound.muted);
     dom.muteToggle.textContent = sound.muted ? "×" : "♪";
     dom.muteToggle.setAttribute("aria-label", sound.muted ? "Unmute sound" : "Mute sound");
   }

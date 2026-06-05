@@ -317,6 +317,14 @@ button:disabled {
   font-size: clamp(0.52rem, 2vw, 0.66rem);
 }
 
+.key-hint {
+  text-align: center;
+  color: #8f91aa;
+  font-size: 0.52rem;
+  margin: 4px 0 0;
+  letter-spacing: 0;
+}
+
 .game-over-screen h2,
 .game-over-screen h3 {
   color: var(--gold);
